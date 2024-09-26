@@ -1,14 +1,15 @@
 "use client";
 
 import { Form } from "@/components/ui/form";
+import { createUser } from "@/lib/actions/patient.actions";
 import { UserFormValidation } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
-import { useRouter } from "next/navigation";
 
 export enum FormFieldType {
 	INPUT = "input",
@@ -41,15 +42,15 @@ const PatientForm = () => {
 		setIsLoading(true);
 
 		try {
-			// const userData = {
-			// 	name,
-			// 	email,
-			// 	phone,
-			// };
+			const userData = {
+				name,
+				email,
+				phone,
+			};
 
-			// const user = await createUser(userData);
+			const user = await createUser(userData);
 
-			// if (user) router.push(`/patients/${user.$id}/register`);
+			if (user) router.push(`/patients/${user.$id}/register`);
 		} catch (error) {
 			console.log(error);
 		}
