@@ -1,14 +1,8 @@
 "use server";
-import {
-  DATABASE_ID,
-  NEXT_PUBLIC_BUCKET_ID,
-  NEXT_PUBLIC_ENDPOINT,
-  PATIENT_COLLECTION_ID,
-  PROJECT_ID,
-} from "@/env";
+
 import { ID, Query } from "node-appwrite";
 import { InputFile } from "node-appwrite/file";
-import { databases, storage, users } from "../appwrite.config";
+import { BUCKET_ID, DATABASE_ID, databases, ENDPOINT, PATIENT_COLLECTION_ID, PROJECT_ID, storage, users } from "../appwrite.config";
 import { parseStringify } from "../utils";
 
 export const createUser = async (user: CreateUserParams) => {
@@ -55,7 +49,7 @@ export const registerPatient = async ({
 			);
 
 			file = await storage.createFile(
-				NEXT_PUBLIC_BUCKET_ID!,
+				BUCKET_ID!,
 				ID.unique(),
 				inputFile
 			);
@@ -67,7 +61,7 @@ export const registerPatient = async ({
 			ID.unique(),
 			{
 				identificationDocumentId: file?.$id || null,
-				identificationDocumentUrl: `${NEXT_PUBLIC_ENDPOINT}/storage/buckets/${NEXT_PUBLIC_BUCKET_ID}/files/${file?.$id}/view?project=${PROJECT_ID} `,
+				identificationDocumentUrl: `${ENDPOINT}/storage/buckets/${BUCKET_ID}/files/${file?.$id}/view?project=${PROJECT_ID} `,
 				...patient,
 			}
 		);

@@ -1,19 +1,21 @@
-import { API_KEY, NEXT_PUBLIC_ENDPOINT, PROJECT_ID } from "@/env";
-import {
-  Client,
-  Databases,
-  Functions,
-  Messaging,
-  Storage,
-  Users,
-} from "node-appwrite";
+import * as sdk from "node-appwrite";
 
-const client = new Client();
+export const {
+  NEXT_PUBLIC_ENDPOINT: ENDPOINT,
+  PROJECT_ID,
+  API_KEY,
+  DATABASE_ID,
+  PATIENT_COLLECTION_ID,
+  DOCTOR_COLLECTION_ID,
+  APPOINTMENT_COLLECTION_ID,
+  NEXT_PUBLIC_BUCKET_ID: BUCKET_ID,
+} = process.env;
 
-client.setEndpoint(NEXT_PUBLIC_ENDPOINT).setProject(PROJECT_ID).setKey(API_KEY);
+const client = new sdk.Client();
 
-export const databases = new Databases(client);
-export const storage = new Storage(client);
-export const functions = new Functions(client);
-export const users = new Users(client);
-export const messaging = new Messaging(client);
+client.setEndpoint(ENDPOINT!).setProject(PROJECT_ID!).setKey(API_KEY!);
+
+export const databases = new sdk.Databases(client);
+export const users = new sdk.Users(client);
+export const messaging = new sdk.Messaging(client);
+export const storage = new sdk.Storage(client);
