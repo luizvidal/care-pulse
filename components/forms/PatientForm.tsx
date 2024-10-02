@@ -1,7 +1,7 @@
 "use client";
 
 import { Form } from "@/components/ui/form";
-import { createUser } from "@/lib/actions/patient.actions";
+import { createUser, getPatient } from "@/lib/actions/patient.actions";
 import { UserFormValidation } from "@/lib/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -50,7 +50,13 @@ const PatientForm = () => {
 
 			const user = await createUser(userData);
 
-			if (user) router.push(`/patients/${user.$id}/register`);
+			if (user) {
+				const patient = await getPatient(user.$id);
+
+				router.push(
+					`/patients/${user.$id}/${patient ? "new-appointment" : "register"}`
+				);
+			}
 		} catch (error) {
 			console.log(error);
 		}
