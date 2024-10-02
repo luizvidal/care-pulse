@@ -13,7 +13,11 @@ import { getAppointmentSchema } from "@/lib/validation";
 
 import "react-datepicker/dist/react-datepicker.css";
 
-import { createAppointment } from "@/lib/actions/appointment.actions";
+import {
+  createAppointment,
+  updateAppointment,
+} from "@/lib/actions/appointment.actions";
+import { Appointment } from "@/types/appwrite.types";
 import CustomFormField from "../CustomFormField";
 import SubmitButton from "../SubmitButton";
 import { Form } from "../ui/form";
@@ -23,10 +27,14 @@ export const AppointmentForm = ({
 	type,
 	userId,
 	patientId,
+	appointment,
+	setOpen,
 }: {
 	type: "create" | "cancel" | "schedule";
 	userId: string;
 	patientId: string;
+	appointment?: Appointment;
+	setOpen: (open: boolean) => void;
 }) => {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
@@ -36,11 +44,11 @@ export const AppointmentForm = ({
 	const form = useForm<z.infer<typeof AppointmentFormValidation>>({
 		resolver: zodResolver(AppointmentFormValidation),
 		defaultValues: {
-			primaryPhysician: "",
-			schedule: new Date(),
-			reason: "",
-			note: "",
-			cancellationReason: "",
+			primaryPhysician: appointment ? appointment.primaryPhysician : "",
+			schedule: appointment ? new Date(appointment.schedule) : new Date(),
+			reason: appointment ? appointment.reason : "",
+			note: appointment ? appointment.note : "",
+			cancellationReason: appointment?.cancellationReason || "",
 		},
 	});
 
@@ -54,7 +62,7 @@ export const AppointmentForm = ({
 				status = "scheduled";
 				break;
 			case "cancel":
-				status = "canceled";
+				status = "cancelled";
 				break;
 			default:
 				status = "pending";
@@ -79,6 +87,26 @@ export const AppointmentForm = ({
 					router.push(
 						`/patients/${userId}/new-appointment/success?appointmentId=${appointment.$id}`
 					);
+				}
+			} else {
+				const appointmentToUpdate = {
+					userId,
+					appointmentId: appointment?.$id!,
+					appointment: {
+						primaryPhysician: values?.primaryPhysician,
+						schedule: new Date(values?.schedule),
+						status: status as Status,
+						cancellationReason: values.cancellationReason!,
+					},
+					type,
+				};
+
+
+				const updatedAppointment = await updateAppointment(appointmentToUpdate);
+
+				if (updatedAppointment) {
+					setOpen && setOpen(false);
+					form.reset();
 				}
 			}
 		} catch (error) {
@@ -151,7 +179,7 @@ export const AppointmentForm = ({
 								name="reason"
 								label="Appointment reason"
 								placeholder="Annual montly check-up"
-								disabled={type === "schedule"}
+								disabled={type == "schedule"}
 							/>
 
 							<CustomFormField
@@ -160,7 +188,7 @@ export const AppointmentForm = ({
 								name="note"
 								label="Comments/notes"
 								placeholder="Prefer afternoon appointments, if possible"
-								disabled={type === "schedule"}
+								disabled={type == "schedule"}
 							/>
 						</div>
 					</>
